@@ -89,14 +89,14 @@ class _ChatScreenState extends State<ChatScreen> {
       _staffMembers = [
         {
           'id': 'staff_001',
-          'name': 'Sarah Johnson',
+          'name': 'Staff1',
           'role': 'Customer Service',
           'isOnline': true,
           'lastSeen': DateTime.now().toIso8601String(),
         },
         {
           'id': 'staff_002', 
-          'name': 'Mark Rodriguez',
+          'name': 'Staff2',
           'role': 'Resort Manager',
           'isOnline': true,
           'lastSeen': DateTime.now().toIso8601String(),

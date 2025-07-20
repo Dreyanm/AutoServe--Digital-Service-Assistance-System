@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'staff_admin_chat_screen.dart';
 
 class StaffPanelScreen extends StatefulWidget {
   const StaffPanelScreen({Key? key}) : super(key: key);
@@ -16,17 +18,21 @@ class _StaffPanelScreenState extends State<StaffPanelScreen> {
   List<Map<String, dynamic>> _staffMembers = [];
   String? _currentStaffId;
   bool _isLoading = true;
+  int _unreadAdminMessages = 0;
+  Timer? _adminMessageCheckTimer;
 
   @override
   void initState() {
     super.initState();
     _loadStaffData();
     _loadConversations();
+    _startAdminMessageCheck();
   }
 
   @override
   void dispose() {
     _responseController.dispose();
+    _adminMessageCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -370,6 +376,82 @@ class _StaffPanelScreenState extends State<StaffPanelScreen> {
     }
   }
 
+  void _startAdminMessageCheck() {
+    // Check immediately
+    _checkForAdminMessages();
+    
+    // Set up periodic checking every 5 seconds
+    _adminMessageCheckTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _checkForAdminMessages();
+    });
+  }
+
+  Future<void> _checkForAdminMessages() async {
+    if (_currentStaffId == null) return;
+    
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String conversationKey = 'staff_admin_chat_$_currentStaffId';
+      final String? messagesJson = prefs.getString(conversationKey);
+      
+      int unreadCount = 0;
+      
+      if (messagesJson != null) {
+        final List<dynamic> messagesList = json.decode(messagesJson);
+        final List<Map<String, dynamic>> messages = 
+            messagesList.map((e) => Map<String, dynamic>.from(e)).toList();
+        
+        // Count unread messages from admin
+        for (var message in messages) {
+          if (message['senderType'] == 'admin' && message['isRead'] == false) {
+            unreadCount++;
+          }
+        }
+      }
+      
+      if (mounted && _unreadAdminMessages != unreadCount) {
+        setState(() {
+          _unreadAdminMessages = unreadCount;
+        });
+      }
+    } catch (e) {
+      print('Error checking for admin messages: $e');
+    }
+  }
+
+  Future<void> _markAdminMessagesAsRead() async {
+    if (_currentStaffId == null) return;
+    
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String conversationKey = 'staff_admin_chat_$_currentStaffId';
+      final String? messagesJson = prefs.getString(conversationKey);
+      
+      if (messagesJson != null) {
+        final List<dynamic> messagesList = json.decode(messagesJson);
+        final List<Map<String, dynamic>> messages = 
+            messagesList.map((e) => Map<String, dynamic>.from(e)).toList();
+        
+        bool hasUpdates = false;
+        for (var message in messages) {
+          if (message['senderType'] == 'admin' && message['isRead'] == false) {
+            message['isRead'] = true;
+            hasUpdates = true;
+          }
+        }
+        
+        if (hasUpdates) {
+          await prefs.setString(conversationKey, json.encode(messages));
+          setState(() {
+            _unreadAdminMessages = 0;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error marking admin messages as read: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -457,6 +539,59 @@ class _StaffPanelScreenState extends State<StaffPanelScreen> {
                 }).toList();
               },
             ),
+          IconButton(
+            icon: Stack(
+              children: [
+                Icon(Icons.admin_panel_settings, color: Colors.blue[600]),
+                if (_unreadAdminMessages > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      constraints: BoxConstraints(
+                        minWidth: 12,
+                        minHeight: 12,
+                      ),
+                      child: Text(
+                        _unreadAdminMessages > 9 ? '9+' : _unreadAdminMessages.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            tooltip: 'Chat with Admin',
+            onPressed: () async {
+              // Mark admin messages as read when opening chat
+              await _markAdminMessagesAsRead();
+              
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StaffAdminChatScreen(
+                    staffId: _currentStaffId ?? _staffMembers.first['id'],
+                    staffName: _staffMembers.firstWhere(
+                      (s) => s['id'] == _currentStaffId,
+                      orElse: () => _staffMembers.first,
+                    )['name'],
+                  ),
+                ),
+              ).then((_) {
+                // Refresh admin message count when returning from chat
+                _checkForAdminMessages();
+              });
+            },
+          ),
           const SizedBox(width: 16),
         ],
       ),

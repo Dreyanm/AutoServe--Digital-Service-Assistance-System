@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'admin_profile_screen.dart';
 import 'admin_chat_screen.dart';
+import 'admin_staff_chat_screen.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({Key? key}) : super(key: key);
@@ -110,149 +111,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           icon: const Icon(Icons.account_circle, color: Colors.white, size: 24),
           tooltip: 'Profile',
         ),
-        PopupMenuButton<String>(
-          onSelected: (value) {
-            switch (value) {
-              case 'guests':
-                _showComingSoonDialog('Guests Management');
-                break;
-              case 'staffs':
-                _showComingSoonDialog('Staff Management');
-                break;
-              case 'activities':
-                _showComingSoonDialog('Activities Management');
-                break;
-              case 'facilities':
-                _showComingSoonDialog('Facilities Management');
-                break;
-              case 'service_requests':
-                _showComingSoonDialog('Service Requests');
-                break;
-              case 'bookings':
-                _showComingSoonDialog('Bookings Management');
-                break;
-              case 'resort_info':
-                _showComingSoonDialog('Resort Information');
-                break;
-              case 'settings':
-                setState(() => _selectedIndex = 2);
-                break;
-              case 'logout':
-                _signOut();
-                break;
-              case 'help':
-                _showComingSoonDialog('Help');
-                break;
-            }
-          },
-          icon: const Icon(Icons.menu, color: Colors.white, size: 24),
-          tooltip: 'Menu',
-          itemBuilder: (BuildContext context) => [
-            const PopupMenuItem<String>(
-              value: 'guests',
-              child: Row(
-                children: [
-                  Icon(Icons.people, color: Colors.blue),
-                  SizedBox(width: 12),
-                  Text('Guests'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'staffs',
-              child: Row(
-                children: [
-                  Icon(Icons.badge, color: Colors.green),
-                  SizedBox(width: 12),
-                  Text('Staffs'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'activities',
-              child: Row(
-                children: [
-                  Icon(Icons.local_activity, color: Colors.orange),
-                  SizedBox(width: 12),
-                  Text('Activities'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'facilities',
-              child: Row(
-                children: [
-                  Icon(Icons.business, color: Colors.purple),
-                  SizedBox(width: 12),
-                  Text('Facilities'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'service_requests',
-              child: Row(
-                children: [
-                  Icon(Icons.support_agent, color: Colors.teal),
-                  SizedBox(width: 12),
-                  Text('Service Requests'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'bookings',
-              child: Row(
-                children: [
-                  Icon(Icons.book_online, color: Colors.indigo),
-                  SizedBox(width: 12),
-                  Text('Bookings'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'resort_info',
-              child: Row(
-                children: [
-                  Icon(Icons.info, color: Colors.amber),
-                  SizedBox(width: 12),
-                  Text('Resort Information'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              height: 1,
-              child: Divider(),
-            ),
-            const PopupMenuItem<String>(
-              value: 'settings',
-              child: Row(
-                children: [
-                  Icon(Icons.settings, color: Colors.grey),
-                  SizedBox(width: 12),
-                  Text('Settings'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'help',
-              child: Row(
-                children: [
-                  Icon(Icons.help, color: Colors.grey),
-                  SizedBox(width: 12),
-                  Text('Help'),
-                ],
-              ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'logout',
-              child: Row(
-                children: [
-                  Icon(Icons.logout, color: Colors.red),
-                  SizedBox(width: 12),
-                  Text('Sign Out', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
+        Builder(
+          builder: (context) => IconButton(
+            onPressed: () {
+              Scaffold.of(context).openEndDrawer();
+            },
+            icon: const Icon(Icons.menu, color: Colors.white, size: 24),
+            tooltip: 'Menu',
+          ),
         ),
         const SizedBox(width: 8),
       ],
@@ -274,7 +140,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
             TextButton(
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
-                await prefs.clear();
+                // Only clear current session data, preserve registered users and app data
+                await prefs.remove('user_name');
+                await prefs.remove('user_email');
+                await prefs.remove('user_role');
+                // Don't clear 'registered_users', 'global_conversations', or other app data
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   '/signIn',
@@ -294,6 +164,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: _buildTopNavigationBar(),
+      endDrawer: _buildAdminDrawer(),
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -474,6 +345,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
             }),
             _buildActionCard('Available Facilities', Icons.business, Colors.purple, () {
               _showComingSoonDialog('Available Facilities');
+            }),
+            _buildActionCard('Tickets', Icons.confirmation_number, Colors.indigo, () {
+              _showComingSoonDialog('Tickets');
             }),
             _buildActionCard('Pending Service Request', Icons.pending_actions, Colors.amber, () {
               _showComingSoonDialog('Pending Service Request');
@@ -664,6 +538,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                       final conversation = conversations[index];
                       final lastMessage = conversation['lastMessage'];
                       final unreadCount = conversation['unreadCount'] ?? 0;
+                      final isStaffConversation = conversation['isStaffConversation'] == true;
                       
                       return Card(
                         margin: EdgeInsets.only(bottom: 8),
@@ -671,10 +546,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                           leading: Stack(
                             children: [
                               CircleAvatar(
-                                backgroundColor: Colors.red[100],
+                                backgroundColor: isStaffConversation ? Colors.blue[100] : Colors.red[100],
                                 child: Icon(
-                                  Icons.person,
-                                  color: Colors.red[600],
+                                  isStaffConversation ? Icons.support_agent : Icons.person,
+                                  color: isStaffConversation ? Colors.blue[600] : Colors.red[600],
                                 ),
                               ),
                               if (unreadCount > 0)
@@ -696,7 +571,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                             ],
                           ),
                           title: Text(
-                            conversation['customerName'] ?? 'Guest',
+                            isStaffConversation 
+                              ? (conversation['staffName'] ?? 'Staff') 
+                              : (conversation['customerName'] ?? 'Guest'),
                             style: TextStyle(
                               fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
                             ),
@@ -1160,20 +1037,33 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Future<List<Map<String, dynamic>>> _loadAdminConversations() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String? conversationsJson = prefs.getString('global_conversations');
-      
-      if (conversationsJson == null) return [];
-      
-      final Map<String, dynamic> allConversations = json.decode(conversationsJson);
-      
-      // Filter only admin conversations and sort by last activity
       List<Map<String, dynamic>> adminConversations = [];
       
-      allConversations.forEach((key, value) {
-        if (value is Map<String, dynamic> && value['recipientType'] == 'admin') {
-          adminConversations.add(value);
-        }
-      });
+      // Load guest conversations
+      final String? conversationsJson = prefs.getString('global_conversations');
+      if (conversationsJson != null) {
+        final Map<String, dynamic> allConversations = json.decode(conversationsJson);
+        
+        allConversations.forEach((key, value) {
+          if (value is Map<String, dynamic> && value['recipientType'] == 'admin') {
+            adminConversations.add(value);
+          }
+        });
+      }
+      
+      // Load staff-admin conversations
+      final String? staffConversationsJson = prefs.getString('admin_staff_conversations');
+      if (staffConversationsJson != null) {
+        final Map<String, dynamic> staffConversations = json.decode(staffConversationsJson);
+        
+        staffConversations.forEach((key, value) {
+          if (value is Map<String, dynamic>) {
+            // Mark as staff conversation for UI differentiation
+            value['isStaffConversation'] = true;
+            adminConversations.add(value);
+          }
+        });
+      }
       
       // Sort by last activity (most recent first)
       adminConversations.sort((a, b) {
@@ -1214,18 +1104,278 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   }
 
   void _openAdminChatScreen(Map<String, dynamic> conversation) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AdminChatScreen(
-          guestName: conversation['customerName'] ?? 'Guest',
-          guestEmail: conversation['customerEmail'] ?? 'guest@resort.com',
-          conversationId: conversation['conversationId'] ?? '',
+    final isStaffConversation = conversation['isStaffConversation'] == true;
+    
+    if (isStaffConversation) {
+      // Navigate to staff-admin chat
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdminStaffChatScreen(
+            staffId: conversation['staffId'] ?? '',
+            staffName: conversation['staffName'] ?? 'Staff',
+            conversationId: conversation['conversationId'] ?? '',
+          ),
+        ),
+      ).then((_) {
+        // Refresh the conversations when returning
+        setState(() {});
+      });
+    } else {
+      // Navigate to guest-admin chat
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdminChatScreen(
+            guestName: conversation['customerName'] ?? 'Guest',
+            guestEmail: conversation['customerEmail'] ?? 'guest@resort.com',
+            conversationId: conversation['conversationId'] ?? '',
+          ),
+        ),
+      ).then((_) {
+        // Refresh the conversations when returning
+        setState(() {});
+      });
+    }
+  }
+
+  Widget _buildAdminDrawer() {
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: Column(
+        children: [
+          // Drawer Header
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.red[400]!, Colors.red[600]!],
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Admin Menu',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: const Icon(
+                            Icons.admin_panel_settings,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                adminName ?? 'Administrator',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                adminEmail ?? 'admin@resort.com',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          // Drawer Menu Items
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildDrawerItem(
+                  icon: Icons.people,
+                  title: 'Guests Management',
+                  color: Colors.blue,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Guests Management');
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.badge,
+                  title: 'Staff Management',
+                  color: Colors.green,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Staff Management');
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.local_activity,
+                  title: 'Activities Management',
+                  color: Colors.orange,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Activities Management');
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.business,
+                  title: 'Facilities Management',
+                  color: Colors.purple,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Facilities Management');
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.support_agent,
+                  title: 'Service Requests',
+                  color: Colors.teal,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Service Requests');
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.book_online,
+                  title: 'Bookings Management',
+                  color: Colors.indigo,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Bookings Management');
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.info,
+                  title: 'Resort Information',
+                  color: Colors.amber,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Resort Information');
+                  },
+                ),
+                const Divider(color: Colors.grey),
+                _buildDrawerItem(
+                  icon: Icons.settings,
+                  title: 'Settings',
+                  color: Colors.grey,
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() => _selectedIndex = 2);
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.help,
+                  title: 'Help & Support',
+                  color: Colors.grey,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showComingSoonDialog('Help');
+                  },
+                ),
+              ],
+            ),
+          ),
+          
+          // Logout Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _signOut();
+                },
+                icon: const Icon(Icons.logout, color: Colors.white),
+                label: const Text(
+                  'Sign Out',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[600],
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: color, size: 20),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
         ),
       ),
-    ).then((_) {
-      // Refresh the conversations when returning
-      setState(() {});
-    });
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+    );
   }
 }
