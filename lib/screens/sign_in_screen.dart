@@ -94,7 +94,7 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 20),
               // "Sign in" title
               Text(
-                'Customer Sign in',
+                'Sign in',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
