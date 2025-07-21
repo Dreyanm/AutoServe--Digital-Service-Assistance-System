@@ -5,6 +5,11 @@ import 'dart:convert';
 import 'admin_profile_screen.dart';
 import 'admin_chat_screen.dart';
 import 'admin_staff_chat_screen.dart';
+import 'available_staff_screen.dart';
+import 'active_guests_screen.dart';
+import 'available_activities_screen.dart';
+import 'available_facilities_screen.dart';
+import 'tickets_management_screen.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({Key? key}) : super(key: key);
@@ -335,19 +340,44 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           childAspectRatio: 1,
           children: [
             _buildActionCard('Available Staff', Icons.badge, Colors.blue, () {
-              _showComingSoonDialog('Available Staff');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AvailableStaffScreen(),
+                ),
+              );
             }),
             _buildActionCard('Active Guests', Icons.people, Colors.green, () {
-              _showComingSoonDialog('Active Guests');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ActiveGuestsScreen(),
+                ),
+              );
             }),
             _buildActionCard('Available Activities', Icons.local_activity, Colors.orange, () {
-              _showComingSoonDialog('Available Activities');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AvailableActivitiesScreen(),
+                ),
+              );
             }),
             _buildActionCard('Available Facilities', Icons.business, Colors.purple, () {
-              _showComingSoonDialog('Available Facilities');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AvailableFacilitiesScreen(),
+                ),
+              );
             }),
             _buildActionCard('Tickets', Icons.confirmation_number, Colors.indigo, () {
-              _showComingSoonDialog('Tickets');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TicketsManagementScreen(),
+                ),
+              );
             }),
             _buildActionCard('Pending Service Request', Icons.pending_actions, Colors.amber, () {
               _showComingSoonDialog('Pending Service Request');
