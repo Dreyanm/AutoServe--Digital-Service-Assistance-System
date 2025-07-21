@@ -681,7 +681,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   Widget _buildReportsView() {
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -695,30 +695,17 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.analytics, size: 64, color: Colors.grey[400]),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Reports & Analytics',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Coming Soon',
-                      style: TextStyle(color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            
+            // Key Metrics Cards
+            _buildMetricsSection(),
+            const SizedBox(height: 24),
+            
+            // Charts Section
+            _buildChartsSection(),
+            const SizedBox(height: 24),
+            
+            // Detailed Reports
+            _buildDetailedReports(),
           ],
         ),
       ),
@@ -1376,6 +1363,541 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       ),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+    );
+  }
+
+  // Reports & Analytics Helper Methods
+  Widget _buildMetricsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Key Metrics',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Column(
+          children: [
+            _buildMetricCard('Total Guests', '156', Icons.people, Colors.blue, '+12% from last month'),
+            const SizedBox(height: 12),
+            _buildMetricCard('Occupancy Rate', '78%', Icons.hotel, Colors.green, '+5% from last month'),
+            const SizedBox(height: 12),
+            _buildMetricCard('Revenue', '₱2.4M', Icons.attach_money, Colors.orange, '+18% from last month'),
+            const SizedBox(height: 12),
+            _buildMetricCard('Avg. Rating', '4.7', Icons.star, Colors.purple, '+0.2 from last month'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricCard(String title, String value, IconData icon, MaterialColor color, String trend) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: color[600], size: 20),
+              ),
+              const Spacer(),
+              Icon(Icons.trending_up, color: Colors.green[600], size: 16),
+            ],
+          ),
+          const SizedBox(height: 12),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            trend,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.green[600],
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChartsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Analytics Overview',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          constraints: const BoxConstraints(
+            minHeight: 200,
+            maxHeight: 250,
+          ),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Monthly Revenue Trend',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Row(
+                        children: [
+                          // Y-axis labels
+                          SizedBox(
+                            width: 30,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('₱3M', style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+                                Text('₱2M', style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+                                Text('₱1M', style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+                                Text('₱0', style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Chart bars
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                _buildChartBar('Jan', 60, Colors.blue),
+                                _buildChartBar('Feb', 75, Colors.green),
+                                _buildChartBar('Mar', 85, Colors.orange),
+                                _buildChartBar('Apr', 70, Colors.purple),
+                                _buildChartBar('May', 90, Colors.red),
+                                _buildChartBar('Jun', 95, Colors.teal),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChartBar(String month, double height, MaterialColor color) {
+    return Flexible(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            width: 20,
+            height: height,
+            decoration: BoxDecoration(
+              color: color[400],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            month,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailedReports() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Detailed Reports',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 5,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final reports = [
+              {
+                'title': 'Guest Analytics Report',
+                'description': 'Comprehensive guest behavior and satisfaction metrics',
+                'icon': Icons.people_alt,
+                'color': Colors.blue,
+                'type': 'Guest Analytics',
+              },
+              {
+                'title': 'Revenue & Financial Report',
+                'description': 'Financial performance, revenue streams, and profit analysis',
+                'icon': Icons.trending_up,
+                'color': Colors.green,
+                'type': 'Financial Report',
+              },
+              {
+                'title': 'Occupancy & Booking Report',
+                'description': 'Room occupancy rates, booking patterns, and availability trends',
+                'icon': Icons.hotel,
+                'color': Colors.orange,
+                'type': 'Occupancy Report',
+              },
+              {
+                'title': 'Activities & Facilities Report',
+                'description': 'Usage statistics for resort activities and facilities',
+                'icon': Icons.local_activity,
+                'color': Colors.purple,
+                'type': 'Activities Report',
+              },
+              {
+                'title': 'Staff Performance Report',
+                'description': 'Staff productivity, service quality, and operational efficiency',
+                'icon': Icons.badge,
+                'color': Colors.teal,
+                'type': 'Staff Performance',
+              },
+            ];
+            
+            final report = reports[index];
+            return _buildReportCard(
+              report['title'] as String,
+              report['description'] as String,
+              report['icon'] as IconData,
+              report['color'] as MaterialColor,
+              () => _showReportDetails(report['type'] as String),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReportCard(String title, String description, IconData icon, MaterialColor color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(
+          minHeight: 80,
+        ),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color[600], size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReportDetails(String reportType) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.analytics, color: Colors.red[600]),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  reportType,
+                  style: const TextStyle(fontSize: 18),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
+              maxWidth: 400,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildReportSection(reportType),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _exportReport(reportType);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[600],
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Export PDF'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReportSection(String reportType) {
+    switch (reportType) {
+      case 'Guest Analytics':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildReportItem('Total Guests This Month', '156 guests'),
+            _buildReportItem('New Guests', '89 guests (57%)'),
+            _buildReportItem('Returning Guests', '67 guests (43%)'),
+            _buildReportItem('Average Stay Duration', '3.2 nights'),
+            _buildReportItem('Guest Satisfaction Score', '4.7/5.0'),
+            _buildReportItem('Most Popular Room Type', 'Deluxe Room (45%)'),
+            _buildReportItem('Peak Check-in Day', 'Friday'),
+            _buildReportItem('Average Group Size', '2.3 people'),
+          ],
+        );
+      case 'Financial Report':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildReportItem('Total Revenue', '₱2,450,000'),
+            _buildReportItem('Room Revenue', '₱1,800,000 (73%)'),
+            _buildReportItem('Activity Revenue', '₱420,000 (17%)'),
+            _buildReportItem('Facility Revenue', '₱230,000 (10%)'),
+            _buildReportItem('Average Daily Rate', '₱4,200'),
+            _buildReportItem('Revenue Per Guest', '₱15,700'),
+            _buildReportItem('Operating Costs', '₱1,200,000'),
+            _buildReportItem('Net Profit Margin', '51%'),
+          ],
+        );
+      case 'Occupancy Report':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildReportItem('Current Occupancy Rate', '78%'),
+            _buildReportItem('Average Occupancy (Month)', '74%'),
+            _buildReportItem('Peak Occupancy Day', 'Saturday (95%)'),
+            _buildReportItem('Lowest Occupancy Day', 'Tuesday (52%)'),
+            _buildReportItem('Total Bookings', '234 bookings'),
+            _buildReportItem('Cancelled Bookings', '12 bookings (5%)'),
+            _buildReportItem('No-show Rate', '2%'),
+            _buildReportItem('Average Booking Lead Time', '14 days'),
+          ],
+        );
+      case 'Activities Report':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildReportItem('Most Popular Activity', 'Island Hopping (78%)'),
+            _buildReportItem('Activity Participation Rate', '65%'),
+            _buildReportItem('Swimming Pool Usage', '89%'),
+            _buildReportItem('Restaurant Capacity', '82%'),
+            _buildReportItem('Spa Bookings', '45 bookings'),
+            _buildReportItem('Beach Volleyball Games', '23 games'),
+            _buildReportItem('Kayaking Sessions', '67 sessions'),
+            _buildReportItem('Facility Satisfaction', '4.6/5.0'),
+          ],
+        );
+      case 'Staff Performance':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildReportItem('Total Staff Members', '45 staff'),
+            _buildReportItem('Staff-to-Guest Ratio', '1:3.5'),
+            _buildReportItem('Average Response Time', '12 minutes'),
+            _buildReportItem('Service Quality Score', '4.5/5.0'),
+            _buildReportItem('Front Desk Efficiency', '92%'),
+            _buildReportItem('Housekeeping Score', '4.8/5.0'),
+            _buildReportItem('Restaurant Service', '4.4/5.0'),
+            _buildReportItem('Staff Attendance Rate', '96%'),
+          ],
+        );
+      default:
+        return const Text('Report data not available');
+    }
+  }
+
+  Widget _buildReportItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.red[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _exportReport(String reportType) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Export Report'),
+          content: Text('$reportType has been exported to PDF successfully!'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

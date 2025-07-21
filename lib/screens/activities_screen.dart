@@ -13,12 +13,64 @@ class ActivitiesScreen extends StatefulWidget {
 class _ActivitiesScreenState extends State<ActivitiesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<Map<String, dynamic>> _favoriteItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? favoritesString = prefs.getString('user_favorites');
+    if (favoritesString != null) {
+      List<dynamic> favoritesList = json.decode(favoritesString);
+      setState(() {
+        _favoriteItems = favoritesList.map((e) => Map<String, dynamic>.from(e)).toList();
+      });
+    }
+  }
+
+  Future<void> _saveFavorites() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_favorites', json.encode(_favoriteItems));
+  }
+
+  bool _isFavorite(Map<String, dynamic> item) {
+    return _favoriteItems.any((fav) => 
+      fav['name'] == item['name'] && fav['type'] == item['type']);
+  }
+
+  void _toggleFavorite(Map<String, dynamic> activity) {
+    setState(() {
+      if (_isFavorite(activity)) {
+        _favoriteItems.removeWhere((fav) => 
+          fav['name'] == activity['name'] && fav['type'] == activity['type']);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${activity['name']} removed from favorites')),
+        );
+      } else {
+        _favoriteItems.add({
+          'name': activity['name'],
+          'image': activity['image'],
+          'type': 'activity',
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${activity['name']} added to favorites')),
+        );
+      }
+      _saveFavorites();
+    });
+  }
 
   // Available activities
   final List<Map<String, dynamic>> _activities = [
     {
       'name': 'Island Hopping',
       'icon': Icons.directions_boat,
+      'image': 'IslandHopping.jpg',
       'description': 'Explore beautiful nearby islands with crystal clear waters and pristine beaches',
       'schedule': '8:00 AM - 4:00 PM',
       'duration': '8 hours',
@@ -31,6 +83,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     {
       'name': 'Snorkeling Adventure',
       'icon': Icons.scuba_diving,
+      'image': 'Snorkeling.jpg',
       'description': 'Discover underwater marine life and colorful coral reefs',
       'schedule': '9:00 AM - 12:00 PM',
       'duration': '3 hours',
@@ -43,6 +96,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     {
       'name': 'Banana Boating',
       'icon': Icons.sports_motorsports,
+      'image': 'BananaBoat.jpg',
       'description': 'Thrilling banana boat ride through crystal clear waters with friends and family',
       'schedule': '10:00 AM - 4:00 PM',
       'duration': '30 minutes',
@@ -55,6 +109,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     {
       'name': 'Beach Volleyball',
       'icon': Icons.sports_volleyball,
+      'image': 'BeachVolleyball.jpg',
       'description': 'Fun beach volleyball tournament with prizes for winners',
       'schedule': '3:00 PM - 5:00 PM',
       'duration': '2 hours',
@@ -67,6 +122,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     {
       'name': 'Kayaking',
       'icon': Icons.kayaking,
+      'image': 'Kayaking.jpg',
       'description': 'Paddle through calm waters and explore hidden coves',
       'schedule': '10:00 AM - 12:00 PM',
       'duration': '2 hours',
@@ -79,6 +135,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     {
       'name': 'Fishing Trip',
       'icon': Icons.phishing,
+      'image': 'FishingTrip.jpg',
       'description': 'Traditional fishing experience with local guides',
       'schedule': '6:00 AM - 10:00 AM',
       'duration': '4 hours',
@@ -90,12 +147,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     },
 
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
 
   @override
   void dispose() {
@@ -202,21 +253,47 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with icon and title
+          // Header with image and title
           Container(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.blue[50],
                     borderRadius: BorderRadius.circular(10),
+                    image: DecorationImage(
+                      image: AssetImage(activity['image']),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: Icon(
-                    activity['icon'],
-                    color: Colors.blue[600],
-                    size: 28,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () => _toggleFavorite(activity),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              _isFavorite(activity) 
+                                ? Icons.favorite 
+                                : Icons.favorite_border,
+                              size: 16,
+                              color: _isFavorite(activity) 
+                                ? Colors.red 
+                                : Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),

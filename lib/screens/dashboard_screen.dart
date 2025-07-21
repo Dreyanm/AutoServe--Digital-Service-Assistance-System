@@ -13,6 +13,7 @@ import 'search_screen.dart';
 import 'chat_list_screen.dart';
 import 'staff_panel_screen.dart';
 import 'notification_screen.dart';
+import 'favorites_screen.dart';
 import '../helpers/notification_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? userRole;
   int _unreadMessagesCount = 0;
   int _unreadNotificationsCount = 0;
+  List<Map<String, dynamic>> _favoriteItems = [];
 
   @override
   void initState() {
@@ -37,6 +39,101 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadUnreadMessagesCount();
     _loadUnreadNotificationsCount();
     _checkUserRole();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? favoritesJson = prefs.getString('user_favorites');
+    if (favoritesJson != null) {
+      final List<dynamic> favoritesList = json.decode(favoritesJson);
+      setState(() {
+        _favoriteItems = favoritesList.map((e) => Map<String, dynamic>.from(e)).toList();
+      });
+    }
+  }
+
+  Future<void> _saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_favorites', json.encode(_favoriteItems));
+  }
+
+  bool _isFavorite(String itemId, String itemType) {
+    return _favoriteItems.any((item) => 
+        item['id'] == itemId && item['type'] == itemType);
+  }
+
+  bool _isFavoriteRecommended(Map<String, dynamic> item) {
+    return _favoriteItems.any((fav) => 
+        fav['name'] == item['name'] && fav['type'] == item['type']);
+  }
+
+  Future<void> _toggleFavorite(Map<String, dynamic> item) async {
+    final String itemId = item['id'];
+    final String itemType = item['type'];
+    
+    setState(() {
+      if (_isFavorite(itemId, itemType)) {
+        _favoriteItems.removeWhere((fav) => 
+            fav['id'] == itemId && fav['type'] == itemType);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item['title']} removed from favorites'),
+            backgroundColor: Colors.red[600],
+          ),
+        );
+      } else {
+        _favoriteItems.add({
+          'id': itemId,
+          'type': itemType,
+          'title': item['title'],
+          'location': item['location'],
+          'price': item['price'],
+          'rating': item['rating'],
+          'imagePath': item['imagePath'],
+          'dateAdded': DateTime.now().toIso8601String(),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item['title']} added to favorites'),
+            backgroundColor: Colors.green[600],
+          ),
+        );
+      }
+    });
+    await _saveFavorites();
+  }
+
+  Future<void> _toggleFavoriteRecommended(Map<String, dynamic> item) async {
+    setState(() {
+      if (_isFavoriteRecommended(item)) {
+        _favoriteItems.removeWhere((fav) => 
+            fav['name'] == item['name'] && fav['type'] == item['type']);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item['name']} removed from favorites'),
+            backgroundColor: Colors.red[600],
+          ),
+        );
+      } else {
+        _favoriteItems.add({
+          'name': item['name'],
+          'image': item['image'],
+          'type': item['type'],
+          'location': item['location'],
+          'price': item['price'],
+          'rating': item['rating'],
+          'dateAdded': DateTime.now().toIso8601String(),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item['name']} added to favorites'),
+            backgroundColor: Colors.green[600],
+          ),
+        );
+      }
+    });
+    await _saveFavorites();
   }
 
   Future<void> _loadUserData() async {
@@ -195,9 +292,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
         break;
       case 1:
       // Favorites
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Favorites tapped!')),
-        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FavoritesScreen(
+              favoriteItems: _favoriteItems,
+              onFavoriteToggle: (item) async {
+                // Handle both data structures when removing from favorites
+                if (item.containsKey('name')) {
+                  await _toggleFavoriteRecommended(item);
+                } else {
+                  await _toggleFavorite(item);
+                }
+              },
+            ),
+          ),
+        ).then((_) {
+          // Refresh favorites when returning
+          _loadFavorites();
+        });
         break;
       case 2:
       // My bookings
@@ -526,6 +639,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 'Batangas City',
                 'P500 /day',
                 4.0,
+                'BananaBoat.jpg',
               ),
               const SizedBox(height: 15),
               _buildRecommendedItem(
@@ -534,6 +648,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 'Batangas City',
                 'P500 /day',
                 4.8,
+                'Kayaking.jpg',
               ),
               const SizedBox(height: 15),
               _buildRecommendedItem(
@@ -542,6 +657,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 'Batangas City',
                 'P1,200 /person',
                 4.0,
+                'IslandHopping.jpg',
               ),
               const SizedBox(height: 20),
             ],
@@ -676,7 +792,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       String location,
       String price,
       double rating,
+      String imagePath,
       ) {
+    final Map<String, dynamic> item = {
+      'name': title,
+      'image': imagePath,
+      'type': 'activity',
+      'location': location,
+      'price': price,
+      'rating': rating,
+    };
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -694,15 +820,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Placeholder for image
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.image_outlined, color: Colors.grey),
+          // Activity image with heart icon
+          Stack(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: DecorationImage(
+                    image: AssetImage(imagePath),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: GestureDetector(
+                  onTap: () => _toggleFavoriteRecommended(item),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      _isFavoriteRecommended(item) 
+                        ? Icons.favorite 
+                        : Icons.favorite_border,
+                      size: 16,
+                      color: _isFavoriteRecommended(item) 
+                        ? Colors.red 
+                        : Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: 15),
           Expanded(

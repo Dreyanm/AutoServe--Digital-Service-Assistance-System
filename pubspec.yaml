@@ -64,6 +64,14 @@ flutter:
     - assets/google.png
     - assets/facebook.png
     - assets/twitter.png
+    - assets/BananaBoat.jpg
+    - assets/Kayaking.jpg
+    - assets/IslandHopping.jpg
+    - assets/SwimmingPool.jpeg
+    - assets/Restaurant.jpg
+    - assets/Spa.jpg
+    - assets/Cottages.jpg
+    - assets/Rooms.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

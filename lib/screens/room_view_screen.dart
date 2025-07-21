@@ -10,6 +10,7 @@ class RoomViewScreen extends StatelessWidget {
       'price': 'P2,500/night',
       'color': Colors.blue,
       'icon': Icons.single_bed,
+      'image': 'StandardRoom.jpg',
       'description': 'Comfortable and cozy room with modern amenities perfect for couples or solo travelers.',
       'features': [
         'Queen-size bed',
@@ -26,6 +27,7 @@ class RoomViewScreen extends StatelessWidget {
       'price': 'P3,500/night',
       'color': Colors.purple,
       'icon': Icons.king_bed,
+      'image': 'DeluxeRoom.jpg',
       'description': 'Spacious room with premium furnishing and beautiful resort views.',
       'features': [
         'King-size bed',
@@ -44,6 +46,7 @@ class RoomViewScreen extends StatelessWidget {
       'price': 'P4,500/night',
       'color': Colors.green,
       'icon': Icons.family_restroom,
+      'image': 'FamilyRoom.jpg',
       'description': 'Perfect for families with separate sleeping areas and kid-friendly amenities.',
       'features': [
         '1 King bed + 2 Single beds',
@@ -63,6 +66,7 @@ class RoomViewScreen extends StatelessWidget {
       'price': 'P6,500/night',
       'color': Colors.orange,
       'icon': Icons.villa,
+      'image': 'Suite.jpg',
       'description': 'Luxurious suite with separate living room and premium amenities.',
       'features': [
         'King-size bed',
@@ -83,6 +87,7 @@ class RoomViewScreen extends StatelessWidget {
       'price': 'P9,500/night',
       'color': Colors.red,
       'icon': Icons.hotel,
+      'image': 'PresidentialSuite.jpg',
       'description': 'The ultimate luxury experience with top-tier amenities and personalized service.',
       'features': [
         'Master bedroom with King bed',
@@ -187,42 +192,55 @@ class RoomViewScreen extends StatelessWidget {
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
               ),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  (room['color'] as Color).withValues(alpha: 0.7),
-                  (room['color'] as Color).withValues(alpha: 0.9),
-                ],
+              image: DecorationImage(
+                image: AssetImage(room['image']),
+                fit: BoxFit.cover,
               ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  room['icon'],
-                  size: 80,
-                  color: Colors.white,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  room['name'],
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.6),
+                  ],
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          room['name'],
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          room['price'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  room['price'],
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           

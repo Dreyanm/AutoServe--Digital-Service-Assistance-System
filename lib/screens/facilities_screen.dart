@@ -15,6 +15,7 @@ class FacilitiesScreen extends StatefulWidget {
 class _FacilitiesScreenState extends State<FacilitiesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<Map<String, dynamic>> _favoriteItems = [];
 
   // Booking form variables
   String? _selectedFacilityType;
@@ -36,6 +37,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
     {
       'name': 'Swimming Pool',
       'icon': Icons.pool,
+      'image': 'SwimmingPool.jpeg',
       'description': 'Olympic-size swimming pool with crystal clear water and poolside amenities',
       'price': 'P200/hour',
       'availability': 'Available 6:00 AM - 10:00 PM',
@@ -43,6 +45,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
     {
       'name': 'Restaurant',
       'icon': Icons.restaurant,
+      'image': 'Restaurant.jpg',
       'description': 'Fine dining restaurant featuring local and international cuisine',
       'price': 'Table reservation free',
       'availability': 'Available 6:00 AM - 12:00 AM',
@@ -50,6 +53,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
     {
       'name': 'Spa',
       'icon': Icons.spa,
+      'image': 'Spa.jpg',
       'description': 'Luxurious spa offering relaxing treatments and wellness services',
       'price': 'P800/session',
       'availability': 'Available 9:00 AM - 8:00 PM',
@@ -57,6 +61,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
     {
       'name': 'Cottages',
       'icon': Icons.cabin,
+      'image': 'Cottages.jpg',
       'description': 'Private cottages with scenic views perfect for families and groups',
       'price': 'P1,500/day',
       'availability': 'Available 24/7',
@@ -64,6 +69,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
     {
       'name': 'Room',
       'icon': Icons.hotel,
+      'image': 'Rooms.jpg',
       'description': 'Comfortable rooms with modern amenities for overnight stays',
       'price': 'Starting from P2,500/night',
       'availability': 'Available 24/7',
@@ -74,6 +80,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadFavorites();
   }
 
   @override
@@ -82,6 +89,49 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
     _notesController.dispose();
     _referenceIdController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadFavorites() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? favoritesString = prefs.getString('user_favorites');
+    if (favoritesString != null) {
+      List<dynamic> favoritesList = json.decode(favoritesString);
+      setState(() {
+        _favoriteItems = favoritesList.map((e) => Map<String, dynamic>.from(e)).toList();
+      });
+    }
+  }
+
+  Future<void> _saveFavorites() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_favorites', json.encode(_favoriteItems));
+  }
+
+  bool _isFavorite(Map<String, dynamic> item) {
+    return _favoriteItems.any((fav) => 
+      fav['name'] == item['name'] && fav['type'] == item['type']);
+  }
+
+  void _toggleFavorite(Map<String, dynamic> facility) {
+    setState(() {
+      if (_isFavorite(facility)) {
+        _favoriteItems.removeWhere((fav) => 
+          fav['name'] == facility['name'] && fav['type'] == facility['type']);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${facility['name']} removed from favorites')),
+        );
+      } else {
+        _favoriteItems.add({
+          'name': facility['name'],
+          'image': facility['image'],
+          'type': 'facility',
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${facility['name']} added to favorites')),
+        );
+      }
+      _saveFavorites();
+    });
   }
 
   @override
@@ -182,16 +232,43 @@ class _FacilitiesScreenState extends State<FacilitiesScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Facility image
           Container(
-            padding: const EdgeInsets.all(12),
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
-              color: Colors.blue[50],
               borderRadius: BorderRadius.circular(10),
+              image: DecorationImage(
+                image: AssetImage(facility['image']),
+                fit: BoxFit.cover,
+              ),
             ),
-            child: Icon(
-              facility['icon'],
-              color: Colors.blue[600],
-              size: 32,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: GestureDetector(
+                    onTap: () => _toggleFavorite(facility),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _isFavorite(facility) 
+                          ? Icons.favorite 
+                          : Icons.favorite_border,
+                        size: 16,
+                        color: _isFavorite(facility) 
+                          ? Colors.red 
+                          : Colors.grey[600],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 16),
