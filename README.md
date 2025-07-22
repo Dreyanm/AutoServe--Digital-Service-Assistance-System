@@ -17,7 +17,11 @@ Admin
 Staff
 Guests
 
-## Interfaces
+## Wireframe
+
+<img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/35e70086-f119-43b2-89bc-e031ad139906" />
+<img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/bdf94878-e922-4b13-a94a-f828fa820381" />
+
 
 
 
