@@ -20,8 +20,15 @@ Admin/Staff/Guests
 <img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/35e70086-f119-43b2-89bc-e031ad139906" />
 <img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/bdf94878-e922-4b13-a94a-f828fa820381" />
 
-## Interfaces
+## Guest Interfaces
 
 <img width="391" height="847" alt="Image" src="https://github.com/user-attachments/assets/12ee13ac-ecb9-423f-a260-33706f514bd4" />
 <img width="392" height="851" alt="Image" src="https://github.com/user-attachments/assets/dd08fa44-f858-4b5f-a7b5-e7fdb49a7f3a" />
 <img width="392" height="851" alt="Image" src="https://github.com/user-attachments/assets/653e742f-ed66-49e6-bd5d-b58da5ac0eac" />
+<img width="393" height="850" alt="Image" src="https://github.com/user-attachments/assets/696373e2-c757-4b06-97b6-049a0be04c4a" />
+<img width="392" height="851" alt="Image" src="https://github.com/user-attachments/assets/543fd3f3-0dc4-44b8-994d-6398df9ce964" />
+<img width="391" height="850" alt="Image" src="https://github.com/user-attachments/assets/2167fca5-f25b-4dbd-bcde-160fc002a044" />
+
+## Staff Interfaces
+<img width="391" height="850" alt="Image" src="https://github.com/user-attachments/assets/2167fca5-f25b-4dbd-bcde-160fc002a044" />
+
