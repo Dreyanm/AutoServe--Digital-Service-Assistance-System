@@ -13,9 +13,7 @@ Built using Flutter in Visual Studio Code. The app features a clean user interfa
 
 ## Roles
 
-Admin
-Staff
-Guests
+Admin/Staff/Guests
 
 ## Wireframe
 
