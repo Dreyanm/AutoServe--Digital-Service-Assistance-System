@@ -11,11 +11,11 @@ With this project, the team aims to elevate the guest experience, lessen the wor
 
 Built using Flutter in Visual Studio Code. The app features a clean user interface, responsive design, and smooth navigation.
 
-### Roles
+## Roles
 
-# Admin
-# Staff
-# Guests
+Admin
+Staff
+Guests
 
 #### Interfaces
 
