@@ -22,4 +22,6 @@ Admin/Staff/Guests
 
 ## Interfaces
 
-
+<img width="391" height="847" alt="Image" src="https://github.com/user-attachments/assets/12ee13ac-ecb9-423f-a260-33706f514bd4" />
+<img width="392" height="851" alt="Image" src="https://github.com/user-attachments/assets/dd08fa44-f858-4b5f-a7b5-e7fdb49a7f3a" />
+<img width="392" height="851" alt="Image" src="https://github.com/user-attachments/assets/653e742f-ed66-49e6-bd5d-b58da5ac0eac" />
