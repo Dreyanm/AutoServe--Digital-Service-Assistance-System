@@ -7,15 +7,16 @@ The app allows guests to submit service requests, chat with staff in real time, 
 With this project, the team aims to elevate the guest experience, lessen the workload on resort staff, and bring smart technology into everyday resort operations. Lastly, it’s about helping the resort continue delivering the unforgettable experiences guests have come to expect—now with the support of a smarter, more responsive system. 
 
 
-## Getting Started
+## Technologies Used
 
-This project is a starting point for a Flutter application.
+Built using Flutter in Visual Studio Code. The app features a clean user interface, responsive design, and smooth navigation.
 
-A few resources to get you started if this is your first Flutter project:
+### Roles
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Admin
+Staff
+Guests
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### Interfaces
+
+
