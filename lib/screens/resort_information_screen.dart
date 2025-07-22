@@ -39,35 +39,83 @@ class ResortInformationScreen extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: [Colors.blue[400]!, Colors.blue[600]!],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Stack(
                     children: [
-                      Icon(
-                        Icons.villa,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'GloryMar Vista Beach Resort',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                      // Background Image
+                      Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('GloryMarVistaBeachResort.jpg'),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                      Text(
-                        'Your Dream Vacation Destination',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                      // Overlay gradient for better text readability
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.black.withOpacity(0.4),
+                              Colors.black.withOpacity(0.2),
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                      ),
+                      // Text content
+                      const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.villa,
+                              size: 60,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'GloryMar Vista Beach Resort',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 3,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              'Your Dream Vacation Destination',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 3,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
